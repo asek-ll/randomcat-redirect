@@ -1,35 +1,33 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/urlfetch"
+	"io/ioutil"
 	"net/http"
-    "encoding/json"
-    "io/ioutil"
-
-    "google.golang.org/appengine"
 )
 
 type CatImage struct {
-	File []string `json:"rile"`
+	File string `json:"file"`
 }
 
 func main() {
 	http.HandleFunc("/random-cat", handle)
-    appengine.Main()
+	appengine.Main()
 }
-
 func handle(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello, world!")
-
-	resp, _ := http.Get("http://aws.random.cat/meow")
-
-	defer resp.Body.Close()
-
+	ctx := appengine.NewContext(r)
+	client := urlfetch.Client(ctx)
+	resp, err := client.Get("http://aws.random.cat/meow")
+	if err != nil {
+		panic(err)
+	}
 	body, _ := ioutil.ReadAll(resp.Body)
-
+	defer resp.Body.Close()
 	var image CatImage
-
 	json.Unmarshal(body, &image)
 
-	fmt.Fprintln(w, image.File)
+	w.Header().Set("Location", image.File)
+	w.WriteHeader(http.StatusFound)
 }
