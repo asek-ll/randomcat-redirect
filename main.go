@@ -13,7 +13,7 @@ type CatImage struct {
 }
 
 func main() {
-	http.HandleFunc("/random-cat", handle)
+	http.HandleFunc("/", handle)
 	appengine.Main()
 }
 func handle(w http.ResponseWriter, r *http.Request) {
