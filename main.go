@@ -29,5 +29,6 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(body, &image)
 
 	w.Header().Set("Location", image.File)
+    w.Header().Set("Cache-Control", "max-age=60, must-revalidate")
 	w.WriteHeader(http.StatusFound)
 }
